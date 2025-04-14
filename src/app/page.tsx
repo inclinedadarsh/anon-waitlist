@@ -100,7 +100,7 @@ export default function Home() {
 						". There are many more questions, and we have answered
 						all of them on the{" "}
 						<Link
-							href="/answes"
+							href="/answers"
 							className="underline hover:no-underline font-medium"
 						>
 							answers page
