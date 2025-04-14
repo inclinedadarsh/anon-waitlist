@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ViewContainer } from "@/components/ui/view-container";
-// import { Label } from "@radix-ui/react-label";
 import { ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function Home() {
 	const [email, setEmail] = useState<string>("");
@@ -17,7 +17,7 @@ export default function Home() {
 		e.preventDefault();
 
 		if (!email) {
-			alert("Please enter your email address");
+			toast.warning("Please enter your email address");
 			return;
 		}
 
@@ -35,17 +35,17 @@ export default function Home() {
 			const data = await response.json();
 
 			if (response.ok) {
-				alert(data.message || "Successfully joined the waitlist!");
+				toast(data.message || "Successfully joined the waitlist!");
 				setEmail("");
 			} else {
-				alert(
+				toast.error(
 					data.message ||
 						"Failed to join the waitlist. Please try again.",
 				);
 			}
 		} catch (error) {
 			console.error("Error submitting email:", error);
-			alert(
+			toast.error(
 				"An error occurred while submitting your email. Please try again later.",
 			);
 		} finally {
