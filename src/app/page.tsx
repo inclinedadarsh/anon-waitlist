@@ -8,6 +8,15 @@ import { ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
+import { z } from "zod";
+
+// Define the email schema with Zod
+const emailSchema = z
+	.string()
+	.email("Invalid email format")
+	.refine(email => email.endsWith("@kkwagh.edu.in"), {
+		message: "Only K. K. Wagh email addresses are allowed",
+	});
 
 export default function Home() {
 	const [email, setEmail] = useState<string>("");
@@ -18,6 +27,13 @@ export default function Home() {
 
 		if (!email) {
 			toast.warning("Please enter your email address");
+			return;
+		}
+
+		// Validate email with Zod
+		const emailValidation = emailSchema.safeParse(email);
+		if (!emailValidation.success) {
+			toast.warning(emailValidation.error.errors[0].message);
 			return;
 		}
 
