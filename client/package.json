@@ -7,7 +7,8 @@
 		"build": "next build",
 		"start": "next start",
 		"lint": "biome check",
-		"lint:fix": "biome check --write"
+		"lint:fix": "biome check --write",
+		"prepare": "cd .. && husky client/.husky"
 	},
 	"dependencies": {
 		"class-variance-authority": "^0.7.1",
@@ -25,8 +26,17 @@
 		"@types/node": "^20",
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
+		"husky": "^9.1.7",
+		"lint-staged": "^15.5.1",
 		"tailwindcss": "^4",
 		"typescript": "^5"
 	},
-	"trustedDependencies": ["@biomejs/biome"]
+	"trustedDependencies": [
+		"@biomejs/biome"
+	],
+	"lint-staged": {
+		"*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc,css,html}": [
+			"biome check --write --no-errors-on-unmatched"
+		]
+	}
 }
