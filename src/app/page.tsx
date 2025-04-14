@@ -181,7 +181,9 @@ export default function Home() {
 						className="text-lg font-semibold block"
 						id="registered-emails"
 					>
-						Here are all the people who have registered!
+						{isEmailsLoading
+							? "Here are all the people who have registered!"
+							: `${hashedEmails.length} user${hashedEmails.length !== 1 ? "s" : ""} have registered till now!`}
 					</h2>
 					<p className="">
 						These are all the people who have registered for the
