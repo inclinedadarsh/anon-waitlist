@@ -1,6 +1,14 @@
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { ViewContainer } from "@/components/ui/view-container";
+import { useState } from "react";
 
 export default function Home() {
+	const [email, setEmail] = useState<string>("");
+	const [isLoading, setIsLoading] = useState<boolean>(false);
+
 	return (
 		<main className="">
 			<ViewContainer>
@@ -17,6 +25,13 @@ export default function Home() {
 					We’re launching soon. Hop on the waitlist and be part of it
 					from day one.
 				</p>
+				<div className="">
+					<Input
+						value={email}
+						onChange={e => setEmail(e.target.value)}
+					/>
+					<Button>Sign up!</Button>
+				</div>
 			</ViewContainer>
 		</main>
 	);

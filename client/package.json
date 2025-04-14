@@ -11,6 +11,7 @@
 		"prepare": "cd .. && husky client/.husky"
 	},
 	"dependencies": {
+		"@radix-ui/react-slot": "^1.2.0",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"lucide-react": "^0.488.0",
@@ -31,9 +32,7 @@
 		"tailwindcss": "^4",
 		"typescript": "^5"
 	},
-	"trustedDependencies": [
-		"@biomejs/biome"
-	],
+	"trustedDependencies": ["@biomejs/biome"],
 	"lint-staged": {
 		"*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc,css,html}": [
 			"biome check --write --no-errors-on-unmatched"
