@@ -5,13 +5,53 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ViewContainer } from "@/components/ui/view-container";
 // import { Label } from "@radix-ui/react-label";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
 export default function Home() {
 	const [email, setEmail] = useState<string>("");
 	const [isLoading, setIsLoading] = useState<boolean>(false);
+
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+
+		if (!email) {
+			alert("Please enter your email address");
+			return;
+		}
+
+		setIsLoading(true);
+
+		try {
+			const response = await fetch("/api/waitlist", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ email }),
+			});
+
+			const data = await response.json();
+
+			if (response.ok) {
+				alert(data.message || "Successfully joined the waitlist!");
+				setEmail("");
+			} else {
+				alert(
+					data.message ||
+						"Failed to join the waitlist. Please try again.",
+				);
+			}
+		} catch (error) {
+			console.error("Error submitting email:", error);
+			alert(
+				"An error occurred while submitting your email. Please try again later.",
+			);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
 	return (
 		<main className="pt-10 md:pt-20">
@@ -52,7 +92,10 @@ export default function Home() {
 						.
 					</p>
 				</div>
-				<div className="mt-6 pt-6 border-t-2 border-border border-dashed space-y-4 ">
+				<form
+					onSubmit={handleSubmit}
+					className="mt-6 pt-6 border-t-2 border-border border-dashed space-y-4"
+				>
 					<Label
 						htmlFor="email"
 						className="text-lg font-semibold block"
@@ -65,11 +108,26 @@ export default function Home() {
 						placeholder="ajdubey371122@kkwagh.edu.in"
 						className="max-w-[500px]"
 						id="email"
+						type="email"
+						disabled={isLoading}
 					/>
-					<Button className="hover:cursor-pointer">
-						Sign up <ArrowRight />
+					<Button
+						type="submit"
+						className="hover:cursor-pointer"
+						disabled={isLoading}
+					>
+						{isLoading ? (
+							<>
+								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+								Signing up...
+							</>
+						) : (
+							<>
+								Sign up <ArrowRight className="ml-2" />
+							</>
+						)}
 					</Button>
-				</div>
+				</form>
 				<div className="mt-6 pt-6 border-t-2 border-border border-dashed space-y-4">
 					<h2
 						className="text-lg font-semibold block"
