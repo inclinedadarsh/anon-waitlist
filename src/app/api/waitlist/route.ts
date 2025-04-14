@@ -6,6 +6,7 @@ import { Resend } from "resend";
 import { z } from "zod";
 
 // --- Environment Variable Check ---
+// (Keep the existing checks)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const resendApiKey = process.env.RESEND_API_KEY;
@@ -19,16 +20,21 @@ if (
 	!emailHashSecret ||
 	!resendFromEmail
 ) {
-	console.error("Missing required environment variables");
-	throw new Error("Server configuration error.");
+	console.error("Missing required environment variables for API route.");
+	// Avoid exposing specifics in production, ensure build fails or logs detailed error
+	throw new Error("Server configuration error impacting /api/waitlist.");
 }
 
 // --- Initialize Clients ---
+// (Reuse existing clients)
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
-const resend = new Resend(resendApiKey);
+const resend = new Resend(resendApiKey); // Keep for POST
 
-// --- Input Validation Schema ---
+// --- Schemas and Helper Functions ---
+// (Keep existing WaitlistSchema, generateUniqueCode, hashEmail)
+
 const WaitlistSchema = z.object({
+	// Keep for POST
 	email: z
 		.string()
 		.email("Invalid email format.")
@@ -37,25 +43,14 @@ const WaitlistSchema = z.object({
 		}),
 });
 
-// --- Helper Functions ---
-
-/**
- * Generates a unique 10-character alphanumeric code starting with "anon_".
- * The last 5 characters are random alphanumeric.
- * Checks against the Supabase 'waitlist_codes' table to ensure uniqueness.
- * @returns {Promise<string>} A unique code (e.g., "anon_aB1cD").
- * @throws {Error} If unable to generate a unique code after several attempts.
- */
 async function generateUniqueCode(): Promise<string> {
+	// Keep for POST
 	const prefix = "anon_";
-	const prefixLength = prefix.length; // 5
-	const randomPartLength = 5; // Need 5 random chars for a total of 10
-	const totalLength = prefixLength + randomPartLength; // 10
-
+	const randomPartLength = 5;
 	const chars =
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 	let attempts = 0;
-	const maxAttempts = 10; // Safety break
+	const maxAttempts = 10;
 
 	while (attempts < maxAttempts) {
 		let randomPart = "";
@@ -64,51 +59,34 @@ async function generateUniqueCode(): Promise<string> {
 				Math.floor(Math.random() * chars.length),
 			);
 		}
+		const fullCode = prefix + randomPart;
 
-		// Combine prefix and random part
-		const fullCode = prefix + randomPart; // e.g., "anon_aB1cD"
-
-		// Check if the full 10-character code exists in Supabase
 		const { data: existingCode, error } = await supabase
 			.from("waitlist_codes")
 			.select("code")
-			.eq("code", fullCode) // Check the full code for uniqueness
+			.eq("code", fullCode)
 			.maybeSingle();
 
 		if (error) {
 			console.error("Supabase error checking code uniqueness:", error);
-			// Append which code failed check for better debugging
 			throw new Error(
 				`Database error checking code uniqueness for ${fullCode}.`,
 			);
 		}
-
-		if (!existingCode) {
-			// Code is unique
-			return fullCode;
-		}
-
-		// Code exists, try again
+		if (!existingCode) return fullCode;
 		attempts++;
-		// Log the full code that already exists
 		console.log(
 			`Code ${fullCode} exists, retrying... (Attempt ${attempts})`,
 		);
 	}
-
-	// If we reach here, we failed to generate a unique code
 	console.error(
 		`Failed to generate a unique code starting with '${prefix}' after ${maxAttempts} attempts.`,
 	);
 	throw new Error("Could not generate a unique waitlist code.");
 }
 
-/**
- * Hashes an email using HMAC-SHA256.
- * @param email The email address to hash.
- * @returns The hashed email as a hex string.
- */
 function hashEmail(email: string): string {
+	// Keep for POST
 	return (
 		crypto
 			// biome-ignore lint/style/noNonNullAssertion: <explanation>
@@ -118,7 +96,37 @@ function hashEmail(email: string): string {
 	);
 }
 
+// --- API Route Handler (GET) ---
+// NEW FUNCTION TO HANDLE GET REQUESTS
+export async function GET(request: Request) {
+	try {
+		// Fetch all entries, selecting only the 'hashed_email' column
+		const { data: hashedEmails, error } = await supabase
+			.from("waitlist_users")
+			.select("hashed_email"); // Select only the necessary column
+
+		if (error) {
+			console.error("Supabase error fetching waitlist users:", error);
+			return NextResponse.json(
+				{ message: "Database error fetching waitlist." },
+				{ status: 500 },
+			);
+		}
+
+		// Return the array of objects containing hashed emails
+		// e.g., [{ hashed_email: '...' }, { hashed_email: '...' }]
+		return NextResponse.json(hashedEmails, { status: 200 });
+	} catch (error: unknown) {
+		console.error("Unhandled error in GET /api/waitlist:", error);
+		return NextResponse.json(
+			{ message: "An internal server error occurred." },
+			{ status: 500 },
+		);
+	}
+}
+
 // --- API Route Handler (POST) ---
+// (Keep the existing POST function exactly as it was)
 export async function POST(request: Request) {
 	try {
 		// 1. Parse and Validate Input
@@ -149,7 +157,7 @@ export async function POST(request: Request) {
 		// 2. Hash Email
 		const hashedEmail = hashEmail(normalizedEmail);
 
-		// 3. Check if Hashed Email Already Exists in 'waitlist_users'
+		// 3. Check if Hashed Email Already Exists
 		const { data: existingUser, error: userCheckError } = await supabase
 			.from("waitlist_users")
 			.select("hashed_email")
@@ -187,18 +195,15 @@ export async function POST(request: Request) {
 			);
 		}
 
-		// 5. Send Email with Code using Resend
+		// 5. Send Email
 		try {
 			const { data, error: emailError } = await resend.emails.send({
 				// biome-ignore lint/style/noNonNullAssertion: <explanation>
 				from: resendFromEmail!,
 				to: normalizedEmail,
 				subject: "Your Waitlist Code",
-				html: `<p>Thank you for joining the waitlist!</p>
-                       <p>Your unique code is: <strong>${uniqueCode}</strong></p>
-                       <p>Keep this code safe.</p>`,
+				html: `<p>Thank you for joining the waitlist!</p><p>Your unique code is: <strong>${uniqueCode}</strong></p><p>Keep this code safe.</p>`,
 			});
-
 			if (emailError) {
 				console.error("Resend email sending error:", emailError);
 				return NextResponse.json(
@@ -218,17 +223,14 @@ export async function POST(request: Request) {
 			);
 		}
 
-		// --- Database Insertions (AFTER successful email send) ---
-
-		// 6. Store Hashed Email in 'waitlist_users'
+		// --- Database Insertions ---
+		// 6. Store Hashed Email
 		const { error: userInsertError } = await supabase
 			.from("waitlist_users")
 			.insert({ hashed_email: hashedEmail });
-
 		if (userInsertError) {
 			console.error("Supabase error inserting user:", userInsertError);
 			if (userInsertError.code === "23505") {
-				// Handle race condition
 				return NextResponse.json(
 					{
 						message:
@@ -243,16 +245,12 @@ export async function POST(request: Request) {
 			);
 		}
 
-		// 7. Store Code in 'waitlist_codes' (NO association with user)
-		//    MODIFIED: Removed user_hashed_email from the insert object
+		// 7. Store Code
 		const { error: codeInsertError } = await supabase
 			.from("waitlist_codes")
-			.insert({ code: uniqueCode }); // Only insert the code itself
-
+			.insert({ code: uniqueCode });
 		if (codeInsertError) {
 			console.error("Supabase error inserting code:", codeInsertError);
-			// Still critical, as the user was added and email sent.
-			// Consider logging this specific state for potential manual checks.
 			return NextResponse.json(
 				{
 					message:
@@ -262,7 +260,7 @@ export async function POST(request: Request) {
 			);
 		}
 
-		// 8. Return Success Response
+		// 8. Return Success
 		return NextResponse.json(
 			{
 				message:
@@ -271,11 +269,7 @@ export async function POST(request: Request) {
 			{ status: 201 },
 		);
 	} catch (error: unknown) {
-		console.error("Unhandled error in /api/waitlist:", error);
-		let message = "An unexpected server error occurred.";
-		if (error instanceof Error) {
-			message = error.message;
-		}
+		console.error("Unhandled error in POST /api/waitlist:", error);
 		return NextResponse.json(
 			{ message: "An internal server error occurred." },
 			{ status: 500 },
