@@ -3,6 +3,15 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+	Table,
+	TableBody,
+	TableCaption,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@/components/ui/table";
 import { ViewContainer } from "@/components/ui/view-container";
 import { ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -20,6 +29,7 @@ const emailSchema = z
 
 type HashedEmail = {
 	hashed_email: string;
+	created_at: string;
 };
 
 export default function Home() {
@@ -205,16 +215,40 @@ export default function Home() {
 								<span>Loading registered emails...</span>
 							</div>
 						) : hashedEmails.length > 0 ? (
-							<div className="bg-muted p-4 rounded-md max-h-[400px] overflow-y-auto text-sm font-mono">
-								{hashedEmails.map((item, index) => (
-									<div
-										key={item.hashed_email}
-										className="pb-1.5"
-									>
-										{item.hashed_email}
-									</div>
-								))}
-							</div>
+							<Table>
+								<TableCaption>
+									List of registered users.
+								</TableCaption>
+								<TableHeader>
+									<TableRow>
+										<TableHead>No.</TableHead>
+										<TableHead>Hashed Email</TableHead>
+										<TableHead>Registered at</TableHead>
+									</TableRow>
+								</TableHeader>
+								<TableBody>
+									{hashedEmails.map((item, index) => (
+										<TableRow key={item.hashed_email}>
+											<TableCell>{index + 1}</TableCell>
+											<TableCell>
+												{item.hashed_email}
+											</TableCell>
+											<TableCell>
+												{new Date(
+													item.created_at,
+												).toLocaleString("en-US", {
+													month: "short",
+													day: "numeric",
+													year: "numeric",
+													hour: "numeric",
+													minute: "2-digit",
+													hour12: true,
+												})}
+											</TableCell>
+										</TableRow>
+									))}
+								</TableBody>
+							</Table>
 						) : (
 							<p className="py-2 italic">
 								No registrations yet. Be the first one!

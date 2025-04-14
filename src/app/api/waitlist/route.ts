@@ -97,13 +97,13 @@ function hashEmail(email: string): string {
 }
 
 // --- API Route Handler (GET) ---
-// NEW FUNCTION TO HANDLE GET REQUESTS
 export async function GET(request: Request) {
 	try {
-		// Fetch all entries, selecting only the 'hashed_email' column
+		// Fetch all entries, selecting both 'hashed_email' and 'created_at' columns
 		const { data: hashedEmails, error } = await supabase
 			.from("waitlist_users")
-			.select("hashed_email"); // Select only the necessary column
+			.select("hashed_email, created_at") // Add created_at to selection
+			.order("created_at", { ascending: true }); // Optional: order by newest first
 
 		if (error) {
 			console.error("Supabase error fetching waitlist users:", error);
@@ -113,8 +113,8 @@ export async function GET(request: Request) {
 			);
 		}
 
-		// Return the array of objects containing hashed emails
-		// e.g., [{ hashed_email: '...' }, { hashed_email: '...' }]
+		// Return the array of objects containing hashed emails and timestamps
+		// e.g., [{ hashed_email: '...', created_at: '2025-04-14T...' }, ...]
 		return NextResponse.json(hashedEmails, { status: 200 });
 	} catch (error: unknown) {
 		console.error("Unhandled error in GET /api/waitlist:", error);
