@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { ViewContainer } from "@/components/ui/view-container";
 import { ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -18,9 +18,39 @@ const emailSchema = z
 		message: "Only K. K. Wagh email addresses are allowed",
 	});
 
+type HashedEmail = {
+	hashed_email: string;
+};
+
 export default function Home() {
 	const [email, setEmail] = useState<string>("");
 	const [isLoading, setIsLoading] = useState<boolean>(false);
+	const [hashedEmails, setHashedEmails] = useState<HashedEmail[]>([]);
+	const [isEmailsLoading, setIsEmailsLoading] = useState<boolean>(true);
+
+	const fetchHashedEmails = async () => {
+		setIsEmailsLoading(true);
+		try {
+			const response = await fetch("/api/waitlist");
+			if (!response.ok) {
+				throw new Error("Failed to fetch registered emails");
+			}
+			const data = await response.json();
+			setHashedEmails(data);
+		} catch (error) {
+			console.error("Error fetching hashed emails:", error);
+			toast.error(
+				"Failed to load registered emails. Please refresh the page.",
+			);
+		} finally {
+			setIsEmailsLoading(false);
+		}
+	};
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	useEffect(() => {
+		fetchHashedEmails();
+	}, []); // Add empty dependency array to run only once on mount
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -53,6 +83,8 @@ export default function Home() {
 			if (response.ok) {
 				toast(data.message || "Successfully joined the waitlist!");
 				setEmail("");
+				// Refresh the hashed emails list after successful registration
+				fetchHashedEmails();
 			} else {
 				toast.error(
 					data.message ||
@@ -79,14 +111,14 @@ export default function Home() {
 					<p className="">
 						Ever wanted a place to just{" "}
 						<span className="italic">say things</span> without
-						overthinking? We’re building an{" "}
+						overthinking? We're building an{" "}
 						<span className="font-semibold">anonymous</span> space
 						just for K. K. Wagh students to talk about college,
 						life, or just vibe with random folks from your campus.
-						It’s like a chill gated community, but totally anon.
+						It's like a chill gated community, but totally anon.
 					</p>
 					<p className="">
-						We’re launching soon. Hop on the waitlist and be part of
+						We're launching soon. Hop on the waitlist and be part of
 						it from day one.
 					</p>
 				</div>
@@ -163,6 +195,28 @@ export default function Home() {
 						, all the emails we store are hashed, so this is the
 						exactly how they look like in our database.
 					</p>
+
+					<div className="mt-4">
+						{isEmailsLoading ? (
+							<div className="flex items-center space-x-3 py-4">
+								<Loader2 className="h-5 w-5 animate-spin" />
+								<span>Loading registered emails...</span>
+							</div>
+						) : hashedEmails.length > 0 ? (
+							<div className="bg-muted p-4 rounded-md max-h-[400px] overflow-y-auto text-sm font-mono">
+								{hashedEmails.map((item, index) => (
+									// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+									<div key={index} className="pb-1.5">
+										{item.hashed_email}
+									</div>
+								))}
+							</div>
+						) : (
+							<p className="py-2 italic">
+								No registrations yet. Be the first one!
+							</p>
+						)}
+					</div>
 				</div>
 				<div className="mt-6 py-6 border-t-2 border-border border-dashed space-y-4">
 					By{" "}
