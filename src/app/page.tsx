@@ -205,8 +205,10 @@ export default function Home() {
 						) : hashedEmails.length > 0 ? (
 							<div className="bg-muted p-4 rounded-md max-h-[400px] overflow-y-auto text-sm font-mono">
 								{hashedEmails.map((item, index) => (
-									// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-									<div key={index} className="pb-1.5">
+									<div
+										key={item.hashed_email}
+										className="pb-1.5"
+									>
 										{item.hashed_email}
 									</div>
 								))}
