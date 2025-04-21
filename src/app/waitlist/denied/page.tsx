@@ -20,7 +20,7 @@ export default function AccessDeniedPage() {
         case "domain_mismatch":
             title = "Account Not Eligible";
             message =
-                "Sorry, Anon is exclusively for students of K. K. Wagh Institute. Please log in using Google Account associated with @kkwagh.edu.in email address.";
+                "Sorry, Anon is exclusively for students of K. K. Wagh Institute. Please login using Google Account associated with @kkwagh.edu.in email address.";
             suggestion = "Did you accidentally use your personal Google account?";
             break;
         case "email_unverified":
