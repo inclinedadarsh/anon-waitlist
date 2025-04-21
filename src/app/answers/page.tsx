@@ -5,11 +5,16 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 export default function AnswersPage() {
+	const WAITLIST_REPO_URL = "https://github.com/inclinedadarsh/anon-waitlist";
+	const PLATFORM_REPO_URL = "https://github.com/inclinedadarsh/anon";
+	const CONTACT_EMAIL_1 = "dubeyadarshmain@gmail.com";
+	const CONTACT_EMAIL_2 = "borse.aditya7@gmail.com";
+
 	return (
 		<main className="pt-10 md:pt-20">
 			<ViewContainer className="max-w-[800px]">
 				<h1 className="font-bold text-3xl md:text-5xl tracking-tight">
-					Answers&nbsp;&nbsp;{"//"}&nbsp;&nbsp;Anon
+					Answers  {"//"}  Anon
 				</h1>
 
 				<div className="mt-6 mb-10">
@@ -23,49 +28,98 @@ export default function AnswersPage() {
 
 				<div className="mt-4 pt-6 space-y-4 border-t-2 border-border border-dashed">
 					<h2 className="text-lg font-semibold">
-						How is it anonymous if you're taking my email?
+						How is it anonymous if I have to log in with Google?
 					</h2>
 					<p className="">
-						Great question! We use your email only for verification
-						that you're a student at K. K. Wagh. Once verified, your
-						email is hashed and stored securely. When you post
-						content, it's never linked to your email or any
-						identifying information.
+						We use Google Login strictly for one purpose:{" "}
+						<strong>verifying that you are a student at K. K. Wagh</strong> by checking if your email address ends with{" "}
+						<code className="font-mono text-sm bg-muted px-1 py-0.5 rounded">@kkwagh.edu.in</code>.
 					</p>
 					<p>
-						Everything we build is open source - including{" "}
+						Here's how it works: When you log in for the waitlist, we receive your basic Google profile info (including email and a unique Google ID called <code className="font-mono text-sm bg-muted px-1 py-0.5 rounded">sub</code>). We check the email domain. If it's valid, we{" "}
+						<strong>hash your unique Google ID (<code className="font-mono text-sm bg-muted px-1 py-0.5 rounded">sub</code>)</strong> using a one-way cryptographic hash function (HMAC-SHA256) with a secret key. We store only this hash in the waitlist database, along with a timestamp. We{" "} <strong>do not store or log your email address or your actual Google ID</strong> on the waitlist.
+					</p>
+					<p>
+						You can see exactly how the waitlist hashing works in our open-source code for{" "}
 						<Link
-							href="https://github.com/inclinedadarsh/anon-waitlist"
+							href={WAITLIST_REPO_URL}
 							target="_blank"
 							rel="noopener noreferrer"
 							className="underline hover:no-underline"
 						>
 							this waitlist site
-						</Link>{" "}
-						and the{" "}
+						</Link>
+						. The code for the{" "}
 						<Link
-							href="https://github.com/inclinedadarsh/anon"
-							className="underline hover:no-underline"
+							href={PLATFORM_REPO_URL}
 							target="_blank"
 							rel="noopener noreferrer"
+							className="underline hover:no-underline"
 						>
-							platform we're building
-						</Link>
-						. This means anyone can verify our privacy claims by
-						reviewing the code.
-					</p>
-					<p>
-						Our database architecture is specifically designed so
-						that even we (with full database access) can't tell who
-						posted what! User verification and content posting use
-						completely separate systems with no connecting
-						identifiers.
+							main Anon platform
+						</Link>{" "}
+						is also open-source for full transparency.
 					</p>
 				</div>
 
 				<div className="mt-6 pt-6 space-y-4 border-t-2 border-border border-dashed">
 					<h2 className="text-lg font-semibold">
-						What kind of content is allowed?
+						What data does Google share with you?
+					</h2>
+					<p className="">
+						When you use "Login with Google", we only request for your email to check the domain <code className="font-mono text-sm bg-muted px-1 py-0.5 rounded">@kkwagh.edu.in</code> and whether Google has verified it.
+						
+						We immediately discard your email address after checking the domain and only store the irreversible hash of your Google ID (<code className="font-mono text-sm bg-muted px-1 py-0.5 rounded">sub</code>) in the database.
+					</p>
+				</div>
+
+				<div className="mt-6 pt-6 space-y-4 border-t-2 border-border border-dashed">
+					<h2 className="text-lg font-semibold">
+						How would I get future updates after joining the waitlist?
+					</h2>
+					<p className="">
+						Since we don't store your email, the best way to stay informed about the launch and future updates is by joining our official WhatsApp Channel.
+						(You will find the link of the channel on {" "}
+						<Link
+							href="/"
+							className="underline hover:no-underline"
+						>
+							waitlist page
+						</Link>
+						{" "} after you join the waitlist)
+					</p>
+					<p>
+						Since we're using WhatsApp's "Channels"
+						feature (not groups), we won't know who has joined - so
+						your anonymity remains protected. Join the channel to
+						get notified when we launch and for all future updates.
+					</p>
+					<p>
+						You can also star or watch the GitHub repositories for the{" "}
+						<Link
+							href={WAITLIST_REPO_URL}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="underline hover:no-underline"
+						>
+							waitlist
+						</Link>
+						{" "}and the{" "}
+						<Link
+							href={PLATFORM_REPO_URL}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="underline hover:no-underline"
+						>
+							main platform
+						</Link>
+						{" "}to get notified of code changes and releases.
+					</p>
+				</div>
+
+				<div className="mt-6 pt-6 space-y-4 border-t-2 border-border border-dashed">
+					<h2 className="text-lg font-semibold">
+						What kind of content is allowed on the platform?
 					</h2>
 					<p className="">
 						While anonymity provides freedom, it comes with
@@ -78,7 +132,7 @@ export default function AnswersPage() {
 
 				<div className="mt-6 pt-6 space-y-4 border-t-2 border-border border-dashed">
 					<h2 className="text-lg font-semibold">
-						How do you moderate the platform?
+						How will the platform be moderated if it's anonymous?
 					</h2>
 					<p className="">
 						For the time being, we'll be doing manual moderation
@@ -87,31 +141,6 @@ export default function AnswersPage() {
 						quality standard during the early stages. The moderation
 						system is designed so that we can remove problematic
 						content without ever knowing who posted it.
-					</p>
-				</div>
-
-				<div className="mt-6 pt-6 space-y-4 border-t-2 border-border border-dashed">
-					<h2 className="text-lg font-semibold">
-						How do I get updates if you don't have my email?
-					</h2>
-					<p className="">
-						We've created a{" "}
-						<Link
-							href="https://whatsapp.com/channel/0029Vb5yTvmL2ATyLrdn8H1h"
-							target="_blank"
-							rel="noopener noreferrer"
-							className="underline hover:no-underline"
-						>
-							WhatsApp Channel
-						</Link>{" "}
-						for all updates! Since we're using WhatsApp's "Channels"
-						feature (not groups), we won't know who has joined - so
-						your anonymity remains protected. Join the channel to
-						get notified when we launch and for all future updates.
-					</p>
-					<p>
-						We'll also post updates on our GitHub repositories,
-						which you can star or watch to stay informed.
 					</p>
 				</div>
 
@@ -126,52 +155,36 @@ export default function AnswersPage() {
 					</p>
 				</div>
 
-				<div className="mt-6 pt-6 space-y-4 border-t-2 border-border border-dashed">
-					<h2 className="text-lg font-semibold">
-						How do I know my data is secure?
-					</h2>
-					<p className="">
-						We take security seriously. Your email is hashed using
-						industry-standard techniques, and we never store
-						plaintext emails. We don't collect any other personal
-						information, and all posts are completely detached from
-						user identities.
-					</p>
-				</div>
-
 				<div className="mt-6 py-6 space-y-4 border-t-2 border-border border-dashed">
 					<h2 className="text-lg font-semibold">
-						I have some security concerns. How can I reach you?
+						I have security or privacy concerns. How can I reach you?
 					</h2>
 					<p className="">
 						We're always open to questions about security or
 						privacy. Feel free to email us at
 						<span className="px-1">
 							<Link
-								href="mailto:dubeyadarshmain@gmail.com"
+								href={`mailto:${CONTACT_EMAIL_1}`}
 								className="underline hover:no-underline"
-								target="_blank"
-								rel="noopener noreferrer"
 							>
-								dubeyadarshmain@gmail.com
+								{CONTACT_EMAIL_1}
 							</Link>
 						</span>
 						or
 						<span className="px-1">
 							<Link
-								href="mailto:"
+								href={`mailto:${CONTACT_EMAIL_2}`}
 								className="underline hover:no-underline"
-								target="_blank"
-								rel="noopener noreferrer"
 							>
-								__________
+								{CONTACT_EMAIL_2}
 							</Link>
-						</span>
-						and we'll be happy to address any concerns you might
-						have. Security is our top priority, and we appreciate
+						</span>.
+						You can also open an issue on the relevant GitHub repository if your concern is technical.
+						Security is our top priority, and we appreciate
 						your input to make the platform even safer.
 					</p>
 				</div>
+
 			</ViewContainer>
 		</main>
 	);
