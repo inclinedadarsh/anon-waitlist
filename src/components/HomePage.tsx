@@ -9,7 +9,6 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { ViewContainer } from "@/components/ui/view-container";
 import { Loader2, CheckCircle, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -26,6 +25,7 @@ export default function HomePage({ hasCookie }: { hasCookie: boolean }) {
     const [waitlistEntries, setWaitlistEntries] = useState<WaitlistEntry[]>([]);
     const [isEntriesLoading, setIsEntriesLoading] = useState<boolean>(true);
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+    const [isGoogleLoginLoading, setIsGoogleLoginLoading] = useState(false);
 
     const fetchWaitlistEntries = async () => {
         setIsEntriesLoading(true);
@@ -47,11 +47,16 @@ export default function HomePage({ hasCookie }: { hasCookie: boolean }) {
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
         fetchWaitlistEntries();
-        setShowSuccessMessage(hasCookie);
-    }, []);
+        const urlParams = new URLSearchParams(window.location.search);
+        const status = urlParams.get('status');
+        if (hasCookie || status === 'success') {
+            setShowSuccessMessage(true);
+        }
+    }, [hasCookie]);
 
 
     const handleGoogleLogin = () => {
+        setIsGoogleLoginLoading(true);
         window.location.href = "/api/auth/google/login";
     };
 
@@ -95,8 +100,16 @@ export default function HomePage({ hasCookie }: { hasCookie: boolean }) {
                     <Button
                         onClick={handleGoogleLogin}
                         className="hover:cursor-pointer"
+                        disabled={isGoogleLoginLoading}
                     >
-                        Login with Google to Join
+                        {isGoogleLoginLoading ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Logging in...
+                            </>
+                        ) : (
+                            "Login with Google to Join"
+                        )}
                     </Button>
                     <p className="text-xs text-muted-foreground">
                         We only check if your email ends with

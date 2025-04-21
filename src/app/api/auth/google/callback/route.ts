@@ -11,6 +11,7 @@ const identifierHashSecret = process.env.IDENTIFIER_HASH_SECRET;
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+const ONE_WEEK_IN_SECONDS = 604800;
 
 if (
     !googleClientId ||
@@ -126,6 +127,7 @@ export async function GET(request: NextRequest) {
                 value: 'yes',
                 httpOnly: true,
                 path: '/',
+                maxAge: ONE_WEEK_IN_SECONDS,
             })
             return NextResponse.redirect(successRedirectUrl);
         }
@@ -144,6 +146,7 @@ export async function GET(request: NextRequest) {
             value: 'yes',
             httpOnly: true,
             path: '/',
+            maxAge: ONE_WEEK_IN_SECONDS,
         })
         return NextResponse.redirect(successRedirectUrl);
     } catch (error: unknown) {
