@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { ViewContainer } from "@/components/ui/view-container";
 import { cookies } from "next/headers";
 import Link from "next/link";
