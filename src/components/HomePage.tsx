@@ -38,7 +38,12 @@ export default function HomePage({ hasCookie }: { hasCookie: boolean }) {
 			if (!response.ok) {
 				throw new Error("Failed to fetch waitlist entries");
 			}
-			const data = await response.json().catch(() => []);
+			const data: WaitlistEntry[] = await response.json().catch(() => []);
+			data.sort((a, b) => {
+				const timeA = new Date(a.created_at).getTime();
+				const timeB = new Date(b.created_at).getTime();
+				return timeB - timeA;
+			});
 			setWaitlistEntries(data);
 		} catch (error) {
 			console.error(

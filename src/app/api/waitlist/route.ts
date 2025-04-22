@@ -103,7 +103,7 @@ export async function GET(request: Request) {
 		const { data: waitlistEntries, error } = await supabase
 			.from("waitlist_users")
 			.select("hashed_google_id, created_at") // Add created_at to selection
-			.order("created_at", { ascending: true }); // Optional: order by newest first
+			.order("created_at", { ascending: false }); // Optional: order by newest first
 
 		if (error) {
 			console.error("Supabase error fetching waitlist users:", error);
