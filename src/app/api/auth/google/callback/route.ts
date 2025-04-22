@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
     const errorRedirectUrl = `${appUrl}/waitlist/denied?reason=google_error&details=${encodeURIComponent(error || "Unknown Google Error")}`;
     const forbiddenRedirectUrl = `${appUrl}/waitlist/denied?reason=domain_mismatch`;
     const genericRedirectUrl = `${appUrl}/waitlist/denied?reason=internal_error`;
-    const successRedirectUrl = `${appUrl}/?status=success#registered-users`;
+    const successRedirectUrl = `${appUrl}`;
 
     if (error) {
         console.error("Google oauth error: ", error);

@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { ViewContainer } from "@/components/ui/view-container";
 import { Frown } from "lucide-react";
@@ -46,26 +47,29 @@ export default function AccessDeniedPage() {
     }
 
     return (
-        <main className="pt-10 md:pt-20">
-            <ViewContainer className="max-w-[600px] text-center">
-                <div className="flex justify-center mb-6">
-                    <Frown className="w-16 h-16" />
-                </div>
-                <h1 className="font-bold text-2xl md:text-4xl tracking-tight mb-4">
-                    {title}
-                </h1>
-                <p className="text-lg mb-4">{message}</p>
-                {suggestion && (
-                    <p className="text-muted-foreground mb-6">
-                        {suggestion}
-                    </p>
-                )}
-                <Button asChild>
-                    <Link href="/">
-                        Return to Waitlist Page
-                    </Link>
-                </Button>
-            </ViewContainer>
-        </main>
+        <Suspense
+        fallback={<div>Loading...</div>}>
+            <main className="pt-10 md:pt-20">
+                <ViewContainer className="max-w-[600px] text-center">
+                    <div className="flex justify-center mb-6">
+                        <Frown className="w-16 h-16" />
+                    </div>
+                    <h1 className="font-bold text-2xl md:text-4xl tracking-tight mb-4">
+                        {title}
+                    </h1>
+                    <p className="text-lg mb-4">{message}</p>
+                    {suggestion && (
+                        <p className="text-muted-foreground mb-6">
+                            {suggestion}
+                        </p>
+                    )}
+                    <Button asChild>
+                        <Link href="/">
+                            Return to Waitlist Page
+                        </Link>
+                    </Button>
+                </ViewContainer>
+            </main>
+        </Suspense>
     );
 }
