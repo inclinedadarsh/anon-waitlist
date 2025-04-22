@@ -1,13 +1,13 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
+import HomePage from "@/components/HomePage";
 import { ViewContainer } from "@/components/ui/view-container";
 import { cookies } from "next/headers";
 import Link from "next/link";
-import HomePage from "@/components/HomePage";
 
 export default async function Home() {
-	const cookieStore = await cookies()
-	const hasCookie = cookieStore.has('waitlisted')
+	const cookieStore = await cookies();
+	const hasCookie = cookieStore.has("waitlisted");
 
 	return (
 		<main className="pt-10 md:pt-20">
@@ -34,8 +34,8 @@ export default async function Home() {
 					<p className="">
 						We know you have so many questions, starting from "
 						<span className="font-medium italic">
-							How is it anonymous if you're asking me to login with google in the
-							first place?!
+							How is it anonymous if you're asking me to login
+							with google in the first place?!
 						</span>
 						". There are many more questions, and we have answered
 						all of them on the{" "}
@@ -48,7 +48,7 @@ export default async function Home() {
 						.
 					</p>
 				</div>
-				<HomePage hasCookie={hasCookie}/>
+				<HomePage hasCookie={hasCookie} />
 			</ViewContainer>
 		</main>
 	);

@@ -23,9 +23,7 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<body className={`${inter.className} antialiased`}>
-				<Suspense>
-					{children}
-				</Suspense>
+				<Suspense>{children}</Suspense>
 				<Toaster richColors theme="light" />
 			</body>
 		</html>
