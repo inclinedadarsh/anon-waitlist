@@ -109,6 +109,37 @@ export async function GET(request: NextRequest) {
 
 		if (!email.endsWith("@kkwagh.edu.in")) {
 			console.warn("User denied: Email domain mismatch");
+			// Let's store this person in the rejected users table
+			const hashedGoogleId = hashIdentifier(googleId);
+			console.log(`Hashed google id (rejected): ${hashedGoogleId}`);
+
+			console.log("Checking if user exists in the db");
+			const { data: existingUser, error: selectError } =
+				await supabaseAdmin
+					.from("rejected_users")
+					.select("hashed_google_id")
+					.eq("hashed_google_id", hashedGoogleId)
+					.maybeSingle();
+
+			if (selectError) {
+				console.error("supabase select error");
+				return NextResponse.redirect(genericRedirectUrl);
+			}
+
+			if (!existingUser) {
+				console.log(
+					`User ${hashedGoogleId} not found in rejected users. Inserting into the db.`,
+				);
+				const { error: insertError } = await supabaseAdmin
+					.from("rejected_users")
+					.insert({ hashed_google_id: hashedGoogleId });
+
+				if (insertError) {
+					console.error("Supabase insert error: ", insertError);
+					return NextResponse.redirect(genericRedirectUrl);
+				}
+			}
+
 			return NextResponse.redirect(forbiddenRedirectUrl);
 		}
 

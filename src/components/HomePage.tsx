@@ -26,6 +26,7 @@ const WHATSAPP_CHANNEL_URL = process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL_URL;
 
 export default function HomePage({ hasCookie }: { hasCookie: boolean }) {
 	const [waitlistEntries, setWaitlistEntries] = useState<WaitlistEntry[]>([]);
+	const [rejectedCount, setRejectedCount] = useState<number>(0); // New state for rejected count
 	const [pageStatus, setPageStatus] = useState({
 		entriesLoading: true,
 		googleLoginLoading: false,
@@ -38,13 +39,19 @@ export default function HomePage({ hasCookie }: { hasCookie: boolean }) {
 			if (!response.ok) {
 				throw new Error("Failed to fetch waitlist entries");
 			}
-			const data: WaitlistEntry[] = await response.json().catch(() => []);
-			data.sort((a, b) => {
+			const data = await response.json(); // Changed to get the whole object
+			console.log(data);
+			const waitlistData: WaitlistEntry[] = data.waitlistEntries || []; // Access waitlistEntries
+			const rejectedUsersCount: number = data.rejectedCount || 0; // Access rejectedCount
+
+			waitlistData.sort((a, b) => {
+				// Sort waitlist entries
 				const timeA = new Date(a.created_at).getTime();
 				const timeB = new Date(b.created_at).getTime();
 				return timeB - timeA;
 			});
-			setWaitlistEntries(data);
+			setWaitlistEntries(waitlistData);
+			setRejectedCount(rejectedUsersCount); // Set the rejected count
 		} catch (error) {
 			console.error(
 				"Error occurred while fetching waitlist entries: ",
@@ -328,6 +335,28 @@ export default function HomePage({ hasCookie }: { hasCookie: boolean }) {
 						)}
 					</AnimatePresence>
 				</div>
+				{/* Display the rejected users count */}
+				<motion.p
+					initial="hidden"
+					animate="visible"
+					variants={fadeVariants}
+					className="mt-6 mb-1 text-sm text-muted-foreground"
+				>
+					{rejectedCount} user
+					{rejectedCount !== 1 ? "s were" : " was"} rejected because
+					they&apos;re not from K. K. Wagh.
+				</motion.p>
+				<motion.p
+					initial="hidden"
+					animate="visible"
+					variants={fadeVariants}
+					className="text-xs text-muted-foreground"
+				>
+					<span className="font-medium">Note:</span> A rejected user
+					is added when someone tries to log in from a non-K. K. Wagh
+					email and hasn&apos;t tried accessing before (i.e., only the
+					first attempt is counted).
+				</motion.p>
 			</motion.div>
 		);
 	};

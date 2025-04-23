@@ -113,9 +113,33 @@ export async function GET(request: Request) {
 			);
 		}
 
+		// Fetch the count of entries in the rejected_users table
+		const { count: rejectedCount, error: rejectedError } = await supabase
+			.from("rejected_users")
+			.select("*", { count: "exact" });
+
+		console.log(rejectedCount);
+
+		if (rejectedError) {
+			console.error(
+				"Supabase error fetching rejected users count:",
+				rejectedError,
+			);
+			return NextResponse.json(
+				{ message: "Database error fetching rejected users count." },
+				{ status: 500 },
+			);
+		}
+
 		// Return the array of objects containing hashed emails and timestamps
 		// e.g., [{ hashed_email: '...', created_at: '2025-04-14T...' }, ...]
-		return NextResponse.json(waitlistEntries, { status: 200 });
+		return NextResponse.json(
+			{
+				waitlistEntries,
+				rejectedCount: rejectedCount || 0, // Ensure we return 0 if count is null
+			},
+			{ status: 200 },
+		);
 	} catch (error: unknown) {
 		console.error("Unhandled error in GET /api/waitlist:", error);
 		return NextResponse.json(
